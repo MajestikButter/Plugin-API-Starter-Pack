@@ -1,22 +1,35 @@
 import { Effect, Entity, Player, World } from 'Minecraft';
-import EventEmitter from './eventemitter.js';
+import EventEmitter, { EventListener } from './eventemitter.js';
 import { print, runCommand } from './general.js';
 import Scoreboard from './scoreboard.js';
 
+type EventNames = 'beforeChat' | 'chat' | 'effectAdded' | 'playerCreated' | 'playerRemoved' | 'tick' | 'worldStarted';
 interface Events {
+  listeners(eventName: EventNames): EventListener[];
+
   emit(eventName: 'beforeChat', evd: { sender: Player; senderId: string; message: string; cancel: boolean }): any;
   emit(eventName: 'chat', evd: { sender: Player; senderId: string; message: string }): any;
   emit(eventName: 'effectAdded', evd: { entity: Entity; effect: Effect; effectState: number }): any;
+  emit(eventName: 'playerCreated', evd: { player: Player }): any;
+  emit(eventName: 'playerRemoved', evd: { playerName: string }): any;
   emit(eventName: 'tick', evd: { tickStamp: number }): any;
   emit(eventName: 'worldStarted', evd: { tickStamp: number }): any;
-  emit(eventName: 'playerCreated', evd: { player: Player }): any;
 
   on(eventName: 'beforeChat', eventCallback: (evd: { sender: Player; senderId: string; message: string; cancel: boolean }) => any): any;
   on(eventName: 'chat', eventCallback: (evd: { sender: Player; senderId: string; message: string }) => any): any;
   on(eventName: 'effectAdded', eventCallback: (evd: { entity: Entity; effect: Effect; effectState: number }) => any): any;
+  on(eventName: 'playerCreated', eventCallback: (evd: { player: Player }) => any): any;
+  on(eventName: 'playerRemoved', eventCallback: (evd: { playerName: string }) => any): any;
   on(eventName: 'tick', eventCallback: (evd: { tickStamp: number }) => any): any;
   on(eventName: 'worldStarted', eventCallback: (evd: { tickStamp: number }) => any): any;
-  on(eventName: 'playerCreated', eventCallback: (evd: { player: Player }) => any): any;
+
+  once(eventName: 'beforeChat', eventCallback: (evd: { sender: Player; senderId: string; message: string; cancel: boolean }) => any): any;
+  once(eventName: 'chat', eventCallback: (evd: { sender: Player; senderId: string; message: string }) => any): any;
+  once(eventName: 'effectAdded', eventCallback: (evd: { entity: Entity; effect: Effect; effectState: number }) => any): any;
+  once(eventName: 'playerCreated', eventCallback: (evd: { player: Player }) => any): any;
+  once(eventName: 'playerRemoved', eventCallback: (evd: { playerName: string }) => any): any;
+  once(eventName: 'tick', eventCallback: (evd: { tickStamp: number }) => any): any;
+  once(eventName: 'worldStarted', eventCallback: (evd: { tickStamp: number }) => any): any;
 }
 let Events: Events = new EventEmitter();
 export default Events;
@@ -101,5 +114,12 @@ World.events.tick.subscribe(() => {
       }
     }
   }
+
+  for (let name of prevTestfor) {
+    if (currParsed.includes(name)) continue;
+    let evd = { playerName: name };
+    Events.emit('playerRemoved', evd);
+  }
+
   prevTestfor = currParsed;
 });
