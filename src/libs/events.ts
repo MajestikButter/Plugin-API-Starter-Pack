@@ -1,7 +1,7 @@
 import { Effect, Entity, Player, World } from 'Minecraft';
 import EventEmitter, { EventListener } from './eventemitter.js';
-import { print, runCommand } from './general.js';
 import Scoreboard from './scoreboard.js';
+import { runCommand, runCommands } from './utils/runcommand.js';
 
 type EventNames = 'beforeChat' | 'chat' | 'effectAdded' | 'playerCreated' | 'playerRemoved' | 'tick' | 'worldStarted';
 interface Events {
@@ -10,7 +10,7 @@ interface Events {
   emit(eventName: 'beforeChat', evd: { sender: Player; senderId: string; message: string; cancel: boolean }): any;
   emit(eventName: 'chat', evd: { sender: Player; senderId: string; message: string }): any;
   emit(eventName: 'effectAdded', evd: { entity: Entity; effect: Effect; effectState: number }): any;
-  emit(eventName: 'playerCreated', evd: { player: Player }): any;
+  emit(eventName: 'playerCreated', evd: { player: Player; playerId: string }): any;
   emit(eventName: 'playerRemoved', evd: { playerName: string }): any;
   emit(eventName: 'tick', evd: { tickStamp: number }): any;
   emit(eventName: 'worldStarted', evd: { tickStamp: number }): any;
@@ -18,7 +18,7 @@ interface Events {
   on(eventName: 'beforeChat', eventCallback: (evd: { sender: Player; senderId: string; message: string; cancel: boolean }) => any): any;
   on(eventName: 'chat', eventCallback: (evd: { sender: Player; senderId: string; message: string }) => any): any;
   on(eventName: 'effectAdded', eventCallback: (evd: { entity: Entity; effect: Effect; effectState: number }) => any): any;
-  on(eventName: 'playerCreated', eventCallback: (evd: { player: Player }) => any): any;
+  on(eventName: 'playerCreated', eventCallback: (evd: { player: Player; playerId: string }) => any): any;
   on(eventName: 'playerRemoved', eventCallback: (evd: { playerName: string }) => any): any;
   on(eventName: 'tick', eventCallback: (evd: { tickStamp: number }) => any): any;
   on(eventName: 'worldStarted', eventCallback: (evd: { tickStamp: number }) => any): any;
@@ -26,7 +26,7 @@ interface Events {
   once(eventName: 'beforeChat', eventCallback: (evd: { sender: Player; senderId: string; message: string; cancel: boolean }) => any): any;
   once(eventName: 'chat', eventCallback: (evd: { sender: Player; senderId: string; message: string }) => any): any;
   once(eventName: 'effectAdded', eventCallback: (evd: { entity: Entity; effect: Effect; effectState: number }) => any): any;
-  once(eventName: 'playerCreated', eventCallback: (evd: { player: Player }) => any): any;
+  once(eventName: 'playerCreated', eventCallback: (evd: { player: Player; playerId: string }) => any): any;
   once(eventName: 'playerRemoved', eventCallback: (evd: { playerName: string }) => any): any;
   once(eventName: 'tick', eventCallback: (evd: { tickStamp: number }) => any): any;
   once(eventName: 'worldStarted', eventCallback: (evd: { tickStamp: number }) => any): any;
@@ -67,8 +67,20 @@ World.events.addEffect.subscribe((evd) => {
   Events.emit('effectAdded', emitEvd);
 });
 
+function setupPlayerIds() {
+  if (playerIdObjective.getScoreSelector('"#id"') == 'none') {
+    playerIdObjective.setScoreSelector('"#id"', -2147483648);
+  }
+
+  playerIdObjective.addScoreSelector('@a', 0);
+  if (playerIdObjective.setScoreSelector('@p[scores={playerId=0}]', playerIdObjective.getScoreSelector('"#id"')))
+    playerIdObjective.addScoreSelector('"#id"', 1);
+}
+
 let tickStamp = 0;
 World.events.tick.subscribe(() => {
+  setupPlayerIds();
+
   let emitEvd = {
     tickStamp: tickStamp
   };
@@ -77,7 +89,7 @@ World.events.tick.subscribe(() => {
 });
 
 let startedUp = false;
-World.events.tick.subscribe(() => {
+Events.on('tick', () => {
   if (runCommand('testfor @p').error) return;
   let pluginManagerExists = !runCommand('testfor @e[type=plugin:manager]').error;
 
@@ -95,10 +107,15 @@ World.events.tick.subscribe(() => {
 });
 
 let prevTestfor: string[] = [];
-World.events.tick.subscribe(() => {
+Events.on('tick', () => {
   let testfor = runCommand('testfor @a');
   if (testfor.error) return;
-  let currParsed = testfor.result.statusMessage.slice(6).split(/, /g);
+  let currParsed = [];
+  if (!testfor.result.statusMessage.includes(', ')) {
+    currParsed = [testfor.result.statusMessage.slice(6)];
+  } else {
+    currParsed = testfor.result.statusMessage.slice(6).split(/, /g);
+  }
 
   for (let name of currParsed) {
     if (prevTestfor.includes(name)) continue;
@@ -108,7 +125,7 @@ World.events.tick.subscribe(() => {
       if (!player.name) continue;
 
       if (player.name == name) {
-        let evd = { player: player };
+        let evd = { player: player, playerId: playerIdObjective.getScoreSelector(`"${player.name}"`) + '' };
         Events.emit('playerCreated', evd);
         break;
       }

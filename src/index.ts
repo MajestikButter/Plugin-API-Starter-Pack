@@ -1,5 +1,6 @@
 import Events from './libs/events.js';
-import { print, runCommand } from './libs/general.js';
+import { print } from './libs/utils/print.js';
+import { runCommand } from './libs/utils/runcommand.js';
 
 Events.on('beforeChat', (evd) => {
   evd.cancel = true;

@@ -1,5 +1,8 @@
 import Events from './events.js';
-import { getTags, runCommand, setTickInterval } from './general.js';
+import { runCommand } from './utils/runcommand.js';
+import { setTickInterval } from './utils/ticktimeouts.js';
+import { Tags } from './tags.js';
+import { print } from './utils/print.js';
 
 let dataSaves: { [id: string]: DataSave } = {};
 
@@ -7,26 +10,34 @@ const dataSaveSelector = (id: string) => `@e[c=1,type=plugin:datasave,name="${id
 
 class DataSave {
   id: string;
-  data: {};
+  data: any;
   autoSave: boolean = true;
 
   save() {
-    const tags = getTags(dataSaveSelector(this.id));
-    for (let i = 0; i < tags.length; i++) {
-      let tag = tags[i];
-      runCommand(`tag @e remove ${JSON.stringify(tag)}`);
-    }
-    runCommand(`tag ${dataSaveSelector(this.id)} add ${JSON.stringify(JSON.stringify(this.data))}`);
+    const tags = new Tags(dataSaveSelector(this.id));
+    tags.removeAll();
+    tags.add(JSON.stringify(this.data).replace(/§/g, '$(SectionSign)$'));
   }
 
   static create(id: string, autoSave = true): Promise<DataSave> {
     return new Promise((resolve, reject) => {
       Events.on('worldStarted', () => {
         if (dataSaves[id]) {
-          reject(new Error('A DataSave with that ID already exists'));
+          resolve(dataSaves[id]);
         } else {
           let dataSave = new DataSave(id, autoSave);
           dataSaves[id] = dataSave;
+
+          if (runCommand(`testfor ${dataSaveSelector(id)}`).error) {
+            runCommand(`execute @r ~~~ summon plugin:datasave "${id}" 0 1 0`);
+            dataSave.data = {};
+          } else {
+            const tags = new Tags(dataSaveSelector(id));
+            print('parse error?3')
+            dataSave.data = JSON.parse(tags.getAll()[0].replace(/$(SectionSign)$/g, '§'));
+            print('parse error?4')
+          }
+
           resolve(dataSave);
         }
       });
@@ -41,15 +52,19 @@ class DataSave {
       runCommand(`summon plugin:datasave ${this.id} 0 1 0`);
       this.data = {};
     } else {
-      this.data = JSON.parse(getTags(dataSaveSelector(this.id))[0]);
+      const tags = new Tags(dataSaveSelector(this.id));
+      print('parse error?1')
+      print(tags.getAll()[0])
+      this.data = JSON.parse(tags.getAll()[0].replace(/$(SectionSign)$/g, '§'));
+      print('parse error?2')
     }
   }
 }
 export default DataSave;
 
 setTickInterval(() => {
-  for (let k in dataSaves){
+  for (let k in dataSaves) {
     let dataSave = dataSaves[k];
-    dataSave.save()
+    dataSave.save();
   }
-}, 600);
+}, 100);

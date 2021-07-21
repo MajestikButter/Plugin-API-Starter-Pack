@@ -1,4 +1,4 @@
-import { runCommand } from "./general.js";
+import { runCommand } from "./utils/runcommand.js";
 
 export default class Scoreboard {
   name: string;
@@ -12,7 +12,7 @@ export default class Scoreboard {
 
   getScoreSelector(selector: string) {
     let response = runCommand(`scoreboard players test ${selector} ${this.name} * *`);
-    if (response.error) return 0;
+    if (response.error) return 'none';
     return parseInt(response.result.statusMessage.replace('Score ', '').replace(' is in range -2147483648 to 2147483647', ''));
   }
 
@@ -20,20 +20,22 @@ export default class Scoreboard {
     return this.getScoreSelector(`@e[c=1,name="${entityName}"]`);
   }
 
-  setScoreSelector(selector: string, score: number) {
-    runCommand(`scoreboard players set ${selector} ${this.name} ${score}`);
+  setScoreSelector(selector: string, score: number | 'none') {
+    if (typeof score != 'number') return false;
+    return !runCommand(`scoreboard players set ${selector} ${this.name} ${score}`).error;
   }
 
-  setScore(entityName: string, score: number) {
-    this.setScoreSelector(`@e[c=1,name="${entityName}"]`, score);
+  setScore(entityName: string, score: number | 'none') {
+    return this.setScoreSelector(`@e[c=1,name="${entityName}"]`, score);
   }
 
   
-  addScoreSelector(selector: string, score: number) {
-    runCommand(`scoreboard players add ${selector} ${this.name} ${score}`);
+  addScoreSelector(selector: string, score: number | 'none') {
+    if (typeof score != 'number') return false;
+    return !runCommand(`scoreboard players add ${selector} ${this.name} ${score}`).error;
   }
 
-  addScore(entityName: string, score: number) {
-    this.addScoreSelector(`@e[c=1,name="${entityName}"]`, score);
+  addScore(entityName: string, score: number | 'none') {
+    return this.addScoreSelector(`@e[c=1,name="${entityName}"]`, score);
   }
 }

@@ -1,3 +1,5 @@
+import { error } from "./utils/print.js";
+
 export type EventListener = {
   eventName: string;
   callback: (...args: any[]) => any;
@@ -55,18 +57,22 @@ export default class EventEmitter {
   }
 
   emit(eventName: string, ...args: any[]) {
-    let event = this.events[eventName];
-    if (!event) {
-      return;
-    }
-
-    for (let i = event.listeners.length - 1; i >= 0; i--) {
-      let listener = event.listeners[i];
-      listener.callback(...args);
-
-      if (listener.type == 'once') {
-        this.removeListener(listener);
+    try {
+      let event = this.events[eventName];
+      if (!event) {
+        return;
       }
+
+      for (let i = event.listeners.length - 1; i >= 0; i--) {
+        let listener = event.listeners[i];
+        listener.callback(...args);
+
+        if (listener.type == 'once') {
+          this.removeListener(listener);
+        }
+      }
+    } catch (err) {
+      error(err);
     }
   }
 }
