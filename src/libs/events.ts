@@ -1,36 +1,42 @@
-import { Effect, Entity, World } from 'Minecraft';
-import EventEmitter from './eventlistener.js';
-import { playerClassToId, print, runCommand } from './general.js';
+import { Effect, Entity, Player, World } from 'Minecraft';
+import EventEmitter from './eventemitter.js';
+import { print, runCommand } from './general.js';
+import Scoreboard from './scoreboard.js';
 
 interface Events {
-  emit(eventName: 'beforeChat', evd: { senderId: string; message: string; cancel: boolean }): any;
-  emit(eventName: 'chat', evd: { senderId: string; message: string }): any;
+  emit(eventName: 'beforeChat', evd: { sender: Player; senderId: string; message: string; cancel: boolean }): any;
+  emit(eventName: 'chat', evd: { sender: Player; senderId: string; message: string }): any;
   emit(eventName: 'effectAdded', evd: { entity: Entity; effect: Effect; effectState: number }): any;
   emit(eventName: 'tick', evd: { tickStamp: number }): any;
   emit(eventName: 'worldStarted', evd: { tickStamp: number }): any;
+  emit(eventName: 'playerCreated', evd: { player: Player }): any;
 
-  on(eventName: 'beforeChat', eventCallback: (evd: { senderId: string; message: string; cancel: boolean }) => any): any;
-  on(eventName: 'chat', eventCallback: (evd: { senderId: string; message: string }) => any): any;
+  on(eventName: 'beforeChat', eventCallback: (evd: { sender: Player; senderId: string; message: string; cancel: boolean }) => any): any;
+  on(eventName: 'chat', eventCallback: (evd: { sender: Player; senderId: string; message: string }) => any): any;
   on(eventName: 'effectAdded', eventCallback: (evd: { entity: Entity; effect: Effect; effectState: number }) => any): any;
   on(eventName: 'tick', eventCallback: (evd: { tickStamp: number }) => any): any;
   on(eventName: 'worldStarted', eventCallback: (evd: { tickStamp: number }) => any): any;
+  on(eventName: 'playerCreated', eventCallback: (evd: { player: Player }) => any): any;
 }
 let Events: Events = new EventEmitter();
 export default Events;
 
+const playerIdObjective = new Scoreboard('playerId');
 World.events.chat.subscribe((evd) => {
-  let senderId = playerClassToId.get(evd.sender);
+  let senderId = playerIdObjective.getScoreSelector(`"${evd.sender.name}"`);
   let emitEvd = {
-    senderId: senderId,
+    sender: evd.sender,
+    senderId: senderId + '',
     message: evd.message
   };
   Events.emit('chat', emitEvd);
 });
 
 World.events.beforeChat.subscribe((evd) => {
-  let senderId = playerClassToId.get(evd.sender);
+  let senderId = playerIdObjective.getScoreSelector(`"${evd.sender.name}"`);
   let emitEvd = {
-    senderId: senderId,
+    sender: evd.sender,
+    senderId: senderId + '',
     message: evd.message,
     cancel: evd.canceled
   };
@@ -58,16 +64,42 @@ World.events.tick.subscribe(() => {
 });
 
 let startedUp = false;
-Events.on('tick', (evd) => {
-  runCommand('tickingarea add 0 0 0 0 0 0 plugin_ticking');
+World.events.tick.subscribe(() => {
+  if (runCommand('testfor @p').error) return;
   let pluginManagerExists = !runCommand('testfor @e[type=plugin:manager]').error;
+
   if (!pluginManagerExists) {
-    runCommand('summon plugin:manager');
+    runCommand('execute @r ~~~ tickingarea add 0 0 0 0 0 0 plugin_ticking');
+    runCommand('execute @r ~~~ summon plugin:manager 0 1 0');
   } else {
     if (!startedUp) {
       Events.emit('worldStarted', {
-        tickStamp: evd.tickStamp
+        tickStamp: tickStamp
       });
+      startedUp = true;
     }
   }
+});
+
+let prevTestfor: string[] = [];
+World.events.tick.subscribe(() => {
+  let testfor = runCommand('testfor @a');
+  if (testfor.error) return;
+  let currParsed = testfor.result.statusMessage.slice(6).split(/, /g);
+
+  for (let name of currParsed) {
+    if (prevTestfor.includes(name)) continue;
+
+    let players = World.getPlayers();
+    for (let player of players) {
+      if (!player.name) continue;
+
+      if (player.name == name) {
+        let evd = { player: player };
+        Events.emit('playerCreated', evd);
+        break;
+      }
+    }
+  }
+  prevTestfor = currParsed;
 });
