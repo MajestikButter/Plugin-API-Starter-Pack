@@ -35,11 +35,12 @@ World.events.addEffect.subscribe((evd) => {
     Events.emit('effectAdded', emitEvd);
 });
 function setupPlayerIds() {
-    if (playerIdObjective.getScoreSelector('"#id"') == 'none') {
+    if (playerIdObjective.getScoreSelector('"#id"') === 'none') {
         playerIdObjective.setScoreSelector('"#id"', -2147483648);
     }
     playerIdObjective.addScoreSelector('@a', 0);
-    if (playerIdObjective.setScoreSelector('@p[scores={playerId=0}]', playerIdObjective.getScoreSelector('"#id"')))
+    let setPlayer = playerIdObjective.setScoreSelector('@p[scores={playerId=0}]', playerIdObjective.getScoreSelector('"#id"'));
+    if (setPlayer)
         playerIdObjective.addScoreSelector('"#id"', 1);
 }
 let tickStamp = 0;
