@@ -1,4 +1,4 @@
-import { runCommand } from "./utils/runcommand.js";
+import { runCommand } from './utils/runcommand.js';
 export default class Scoreboard {
     constructor(name, displayName) {
         this.name = name;
@@ -18,8 +18,10 @@ export default class Scoreboard {
         return this.getScoreSelector(`@e[c=1,name="${entityName}"]`);
     }
     setScoreSelector(selector, score) {
-        if (typeof score != 'number')
+        if (typeof score != 'number' && score != 'none')
             return false;
+        if (score == 'none')
+            return !runCommand(`scoreboard players reset ${selector} ${this.name}`).error;
         return !runCommand(`scoreboard players set ${selector} ${this.name} ${score}`).error;
     }
     setScore(entityName, score) {

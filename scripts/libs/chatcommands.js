@@ -22,7 +22,7 @@ export class ChatCommands {
         const argsMsg = msg.slice(cmd.length).trim();
         const args = argsMsg.split(' ');
         if (this.eventEmitter.listeners(cmd).length <= 0) {
-            runCommand(`tellraw @p[name="${evd.sender.nameTag}"] {"rawtext":[{"text":"§c"},{"translate":"commands.generic.unknown", "with": ["${cmd}"]}]}`);
+            runCommand(`tellraw @p[name="${evd.sender.name}"] {"rawtext":[{"text":"§c"},{"translate":"commands.generic.unknown", "with": ["${cmd}"]}]}`);
             return;
         }
         this.eventEmitter.emit(cmd, evd, args, argsMsg);
@@ -43,7 +43,7 @@ ChatCommands.register('help', 'Provides help/list of commands.', 'help [page: in
         if (validCmds <= page * 7 - 7 || cmdsOnPage >= 7)
             continue;
         cmdsOnPage++;
-        body += '!' + cmd.usage + '\n';
+        body += `!${cmd.usage}\n - ${cmd.description}\n`;
     }
     const header = `§2--- Showing help page ${page} of ${Math.ceil(validCmds / 7)} (!help [page]) ---§r\n`;
     sendMsg(msg.sender.name, header + body + header);

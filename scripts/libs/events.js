@@ -83,7 +83,7 @@ Events.on('tick', () => {
     }
 });
 let prevTestfor = [];
-Events.on('tick', () => {
+Events.on('worldStarted', () => Events.on('tick', () => {
     let playerNames = getPlayerNames();
     for (let name of playerNames) {
         if (prevTestfor.includes(name))
@@ -106,4 +106,4 @@ Events.on('tick', () => {
         Events.emit('playerRemoved', evd);
     }
     prevTestfor = playerNames;
-});
+}));

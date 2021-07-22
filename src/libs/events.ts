@@ -153,29 +153,31 @@ Events.on('tick', () => {
 });
 
 let prevTestfor: string[] = [];
-Events.on('tick', () => {
-  let playerNames = getPlayerNames();
+Events.on('worldStarted', () =>
+  Events.on('tick', () => {
+    let playerNames = getPlayerNames();
 
-  for (let name of playerNames) {
-    if (prevTestfor.includes(name)) continue;
+    for (let name of playerNames) {
+      if (prevTestfor.includes(name)) continue;
 
-    let players = World.getPlayers();
-    for (let player of players) {
-      if (!player.name) continue;
+      let players = World.getPlayers();
+      for (let player of players) {
+        if (!player.name) continue;
 
-      if (player.name == name) {
-        let evd = { player: player, playerId: playerIdObjective.getScoreSelector(`"${player.name}"`) + '' };
-        Events.emit('playerCreated', evd);
-        break;
+        if (player.name == name) {
+          let evd = { player: player, playerId: playerIdObjective.getScoreSelector(`"${player.name}"`) + '' };
+          Events.emit('playerCreated', evd);
+          break;
+        }
       }
     }
-  }
 
-  for (let name of prevTestfor) {
-    if (playerNames.includes(name)) continue;
-    let evd = { playerName: name };
-    Events.emit('playerRemoved', evd);
-  }
+    for (let name of prevTestfor) {
+      if (playerNames.includes(name)) continue;
+      let evd = { playerName: name };
+      Events.emit('playerRemoved', evd);
+    }
 
-  prevTestfor = playerNames;
-});
+    prevTestfor = playerNames;
+  })
+);
