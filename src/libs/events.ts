@@ -1,36 +1,72 @@
 import { Effect, Entity, Player, World } from 'Minecraft';
+import { ChatCommands } from './chatcommands.js';
 import EventEmitter, { EventListener } from './eventemitter.js';
 import Scoreboard from './scoreboard.js';
-import { print } from './utils/print.js';
-import { runCommand, runCommands } from './utils/runcommand.js';
+import { getPlayerNames } from './utils/player.js';
+import { runCommand } from './utils/runcommand.js';
 
 type EventNames = 'beforeChat' | 'chat' | 'effectAdded' | 'playerCreated' | 'playerRemoved' | 'tick' | 'worldStarted';
+
+export interface BeforeChatEVD {
+  sender: Player;
+  senderId: string;
+  message: string;
+  cancel: boolean;
+  sendToTargets: boolean;
+  targets: Player[];
+}
+export interface ChatEVD {
+  sender: Player;
+  senderId: string;
+  message: string;
+  sendToTargets: boolean;
+  targets: Player[];
+}
+export interface EffectAddedEVD {
+  entity: Entity;
+  effect: Effect;
+  effectState: number;
+}
+export interface PlayerCreatedEVD {
+  player: Player;
+  playerId: string;
+}
+export interface PlayerRemovedEVD {
+  playerName: string;
+}
+export interface TickEVD {
+  tickStamp: number;
+}
+export interface WorldStartedEVD {
+  tickStamp: number;
+}
+
 interface Events {
   listeners(eventName: EventNames): EventListener[];
 
-  emit(eventName: 'beforeChat', evd: { sender: Player; senderId: string; message: string; cancel: boolean }): any;
-  emit(eventName: 'chat', evd: { sender: Player; senderId: string; message: string }): any;
-  emit(eventName: 'effectAdded', evd: { entity: Entity; effect: Effect; effectState: number }): any;
-  emit(eventName: 'playerCreated', evd: { player: Player; playerId: string }): any;
-  emit(eventName: 'playerRemoved', evd: { playerName: string }): any;
-  emit(eventName: 'tick', evd: { tickStamp: number }): any;
-  emit(eventName: 'worldStarted', evd: { tickStamp: number }): any;
+  emit(eventName: 'beforeChat', evd: BeforeChatEVD): any;
+  emit(eventName: 'chat', evd: ChatEVD): any;
+  emit(eventName: 'effectAdded', evd: EffectAddedEVD): any;
+  emit(eventName: 'playerCreated', evd: PlayerCreatedEVD): any;
+  emit(eventName: 'playerRemoved', evd: PlayerRemovedEVD): any;
+  emit(eventName: 'tick', evd: TickEVD): any;
+  emit(eventName: 'worldStarted', evd: WorldStartedEVD): any;
 
-  on(eventName: 'beforeChat', eventCallback: (evd: { sender: Player; senderId: string; message: string; cancel: boolean }) => any): any;
-  on(eventName: 'chat', eventCallback: (evd: { sender: Player; senderId: string; message: string }) => any): any;
-  on(eventName: 'effectAdded', eventCallback: (evd: { entity: Entity; effect: Effect; effectState: number }) => any): any;
-  on(eventName: 'playerCreated', eventCallback: (evd: { player: Player; playerId: string }) => any): any;
-  on(eventName: 'playerRemoved', eventCallback: (evd: { playerName: string }) => any): any;
-  on(eventName: 'tick', eventCallback: (evd: { tickStamp: number }) => any): any;
-  on(eventName: 'worldStarted', eventCallback: (evd: { tickStamp: number }) => any): any;
+  on(eventName: 'beforeChat', eventCallback: (evd: BeforeChatEVD) => any): any;
+  on(eventName: 'chat', eventCallback: (evd: ChatEVD) => any): any;
+  on(eventName: 'effectAdded', eventCallback: (evd: EffectAddedEVD) => any): any;
+  on(eventName: 'playerCreated', eventCallback: (evd: PlayerCreatedEVD) => any): any;
+  on(eventName: 'playerRemoved', eventCallback: (evd: PlayerRemovedEVD) => any): any;
+  on(eventName: 'tick', eventCallback: (evd: TickEVD) => any): any;
+  on(eventName: 'worldStarted', eventCallback: (evd: WorldStartedEVD) => any): any;
 
-  once(eventName: 'beforeChat', eventCallback: (evd: { sender: Player; senderId: string; message: string; cancel: boolean }) => any): any;
-  once(eventName: 'chat', eventCallback: (evd: { sender: Player; senderId: string; message: string }) => any): any;
-  once(eventName: 'effectAdded', eventCallback: (evd: { entity: Entity; effect: Effect; effectState: number }) => any): any;
-  once(eventName: 'playerCreated', eventCallback: (evd: { player: Player; playerId: string }) => any): any;
-  once(eventName: 'playerRemoved', eventCallback: (evd: { playerName: string }) => any): any;
-  once(eventName: 'tick', eventCallback: (evd: { tickStamp: number }) => any): any;
-  once(eventName: 'worldStarted', eventCallback: (evd: { tickStamp: number }) => any): any;
+  once(eventName: 'beforeChat', eventCallback: (evd: BeforeChatEVD) => any): any;
+  once(eventName: 'chat', eventCallback: (evd: ChatEVD) => any): any;
+  once(eventName: 'effectAdded', eventCallback: (evd: EffectAddedEVD) => any): any;
+  once(eventName: 'playerCreated', eventCallback: (evd: PlayerCreatedEVD) => any): any;
+  once(eventName: 'playerRemoved', eventCallback: (evd: PlayerRemovedEVD) => any): any;
+  once(eventName: 'tick', eventCallback: (evd: TickEVD) => any): any;
+  once(eventName: 'worldStarted', eventCallback: (evd: WorldStartedEVD) => any): any;
 }
 let Events: Events = new EventEmitter();
 export default Events;
@@ -41,7 +77,9 @@ World.events.chat.subscribe((evd) => {
   let emitEvd = {
     sender: evd.sender,
     senderId: senderId + '',
-    message: evd.message
+    message: evd.message,
+    sendToTargets: evd.sendToTargets,
+    targets: evd.targets
   };
   Events.emit('chat', emitEvd);
 });
@@ -52,9 +90,16 @@ World.events.beforeChat.subscribe((evd) => {
     sender: evd.sender,
     senderId: senderId + '',
     message: evd.message,
-    cancel: evd.canceled
+    cancel: evd.canceled,
+    sendToTargets: evd.sendToTargets,
+    targets: evd.targets
   };
-  Events.emit('beforeChat', emitEvd);
+  if (emitEvd.message.startsWith('!')) {
+    ChatCommands.run(emitEvd);
+    emitEvd.cancel = true;
+  } else {
+    Events.emit('beforeChat', emitEvd);
+  }
   evd.canceled = emitEvd.cancel;
   evd.message = emitEvd.message;
 });
@@ -109,16 +154,9 @@ Events.on('tick', () => {
 
 let prevTestfor: string[] = [];
 Events.on('tick', () => {
-  let testfor = runCommand('testfor @a');
-  if (testfor.error) return;
-  let currParsed = [];
-  if (!testfor.result.statusMessage.includes(', ')) {
-    currParsed = [testfor.result.statusMessage.slice(6)];
-  } else {
-    currParsed = testfor.result.statusMessage.slice(6).split(/, /g);
-  }
+  let playerNames = getPlayerNames();
 
-  for (let name of currParsed) {
+  for (let name of playerNames) {
     if (prevTestfor.includes(name)) continue;
 
     let players = World.getPlayers();
@@ -134,10 +172,10 @@ Events.on('tick', () => {
   }
 
   for (let name of prevTestfor) {
-    if (currParsed.includes(name)) continue;
+    if (playerNames.includes(name)) continue;
     let evd = { playerName: name };
     Events.emit('playerRemoved', evd);
   }
 
-  prevTestfor = currParsed;
+  prevTestfor = playerNames;
 });

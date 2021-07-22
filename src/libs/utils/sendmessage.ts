@@ -6,5 +6,5 @@ export function sendRawtext(selector: string, JSONArr: rawtextEntry[]) {
 }
 
 export function sendMsg(selector: string, msg: string) {
-  this.sendRawtext(selector, [{ text: msg }]);
+  sendRawtext(selector, [{ text: msg }]);
 }

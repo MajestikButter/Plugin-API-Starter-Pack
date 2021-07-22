@@ -1,6 +1,8 @@
 import { World } from 'Minecraft';
+import { ChatCommands } from './chatcommands.js';
 import EventEmitter from './eventemitter.js';
 import Scoreboard from './scoreboard.js';
+import { getPlayerNames } from './utils/player.js';
 import { runCommand } from './utils/runcommand.js';
 let Events = new EventEmitter();
 export default Events;
@@ -10,7 +12,9 @@ World.events.chat.subscribe((evd) => {
     let emitEvd = {
         sender: evd.sender,
         senderId: senderId + '',
-        message: evd.message
+        message: evd.message,
+        sendToTargets: evd.sendToTargets,
+        targets: evd.targets
     };
     Events.emit('chat', emitEvd);
 });
@@ -20,9 +24,17 @@ World.events.beforeChat.subscribe((evd) => {
         sender: evd.sender,
         senderId: senderId + '',
         message: evd.message,
-        cancel: evd.canceled
+        cancel: evd.canceled,
+        sendToTargets: evd.sendToTargets,
+        targets: evd.targets
     };
-    Events.emit('beforeChat', emitEvd);
+    if (emitEvd.message.startsWith('!')) {
+        ChatCommands.run(emitEvd);
+        emitEvd.cancel = true;
+    }
+    else {
+        Events.emit('beforeChat', emitEvd);
+    }
     evd.canceled = emitEvd.cancel;
     evd.message = emitEvd.message;
 });
@@ -72,17 +84,8 @@ Events.on('tick', () => {
 });
 let prevTestfor = [];
 Events.on('tick', () => {
-    let testfor = runCommand('testfor @a');
-    if (testfor.error)
-        return;
-    let currParsed = [];
-    if (!testfor.result.statusMessage.includes(', ')) {
-        currParsed = [testfor.result.statusMessage.slice(6)];
-    }
-    else {
-        currParsed = testfor.result.statusMessage.slice(6).split(/, /g);
-    }
-    for (let name of currParsed) {
+    let playerNames = getPlayerNames();
+    for (let name of playerNames) {
         if (prevTestfor.includes(name))
             continue;
         let players = World.getPlayers();
@@ -97,10 +100,10 @@ Events.on('tick', () => {
         }
     }
     for (let name of prevTestfor) {
-        if (currParsed.includes(name))
+        if (playerNames.includes(name))
             continue;
         let evd = { playerName: name };
         Events.emit('playerRemoved', evd);
     }
-    prevTestfor = currParsed;
+    prevTestfor = playerNames;
 });
