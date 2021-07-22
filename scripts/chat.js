@@ -12,7 +12,7 @@ Events.on('beforeChat', (evd) => {
         sendRawtext('@a', [{ text: `${data.prefix}${evd.sender.name}${data.suffix}§r: ${data.chatPrefix}${evd.message}${data.chatSuffix}` }]);
     }
 });
-ChatCommands.register('setdata', '', '', [], (msg, args, argStr) => {
+ChatCommands.register('setdata', 'Sets the value for a key on the specified player data', 'setdata <key: prefix | suffix | chatPrefix | chatSuffix> <value: string>', [], (msg, args, argStr) => {
     if (!PlayerData.data[args[0]]) {
         sendRawtext(selectorFromPlayerId(msg.senderId), [{ text: `§cNo player data found with id '${args[0]}'` }]);
         return;
@@ -38,7 +38,7 @@ ChatCommands.register('setdata', '', '', [], (msg, args, argStr) => {
     }
 });
 let playerIdObjective = new Scoreboard('playerId');
-ChatCommands.register('playerlist', '', '', [], (msg, args, argStr) => {
+ChatCommands.register('playerlist', 'Gets a list of the players in the game and their ids', 'playerlist', [], (msg, args, argStr) => {
     let playerNames = getPlayerNames();
     let message = '§2--[§aPlayers (§bID§a)§2]--';
     for (let playerName of playerNames) {
