@@ -2,7 +2,6 @@ import Events from './events.js';
 import { runCommand } from './utils/runcommand.js';
 import { setTickInterval } from './utils/ticktimeouts.js';
 import { Tags } from './tags.js';
-import { print } from './utils/print.js';
 let dataSaves = {};
 const dataSaveSelector = (id) => `@e[c=1,type=plugin:datasave,name="${id}"]`;
 class DataSave {
@@ -16,16 +15,13 @@ class DataSave {
         }
         else {
             const tags = new Tags(dataSaveSelector(this.id));
-            print('parse error?1');
-            print(tags.getAll()[0]);
-            this.data = JSON.parse(tags.getAll()[0].replace(/$(SectionSign)$/g, '§'));
-            print('parse error?2');
+            this.data = JSON.parse(tags.getAll()[0]);
         }
     }
     save() {
         const tags = new Tags(dataSaveSelector(this.id));
         tags.removeAll();
-        tags.add(JSON.stringify(this.data).replace(/§/g, '$(SectionSign)$'));
+        tags.add(JSON.stringify(this.data));
     }
     static create(id, autoSave = true) {
         return new Promise((resolve, reject) => {
@@ -42,9 +38,7 @@ class DataSave {
                     }
                     else {
                         const tags = new Tags(dataSaveSelector(id));
-                        print('parse error?3');
-                        dataSave.data = JSON.parse(tags.getAll()[0].replace(/$(SectionSign)$/g, '§'));
-                        print('parse error?4');
+                        dataSave.data = JSON.parse(tags.getAll()[0]);
                     }
                     resolve(dataSave);
                 }

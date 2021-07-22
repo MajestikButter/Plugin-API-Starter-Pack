@@ -7,8 +7,10 @@ export class Tags {
     const response = runCommand(`tag ${this.selector} list`).result;
     if (response.error) return [];
     if (!response.statusMessage.includes('has no tags')) {
-      let tags = response.statusMessage
-        .split(' tags: §a')[1]
+      let tags = response.statusMessage.split(' tags: §a')[1];
+      tags = tags
+        .slice(0, tags.length - 2)
+        .replace(/\$\(SS\)\$/g, '§')
         .split('§r, §a');
       return tags;
     }
@@ -16,11 +18,11 @@ export class Tags {
   }
 
   add(tag: string) {
-    runCommand(`tag ${this.selector} add ${JSON.stringify(tag)}`);
+    runCommand(`tag ${this.selector} add ${JSON.stringify(tag).replace(/§/g, '$(SS)$')}`);
   }
 
   remove(tag: string) {
-    runCommand(`tag ${this.selector} remove ${JSON.stringify(tag)}`);
+    runCommand(`tag ${this.selector} remove ${JSON.stringify(tag).replace(/§/g, '$(SS)$')}`);
   }
 
   removeAll() {
