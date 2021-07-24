@@ -3454,94 +3454,94 @@ declare module "Minecraft" {
   export class Effects {
     /**
       */
-    "empty": EffectType
+    static "empty": EffectType
     /**
       */
-    "speed": EffectType
+    static "speed": EffectType
     /**
       */
-    "slowness": EffectType
+    static "slowness": EffectType
     /**
       */
-    "haste": EffectType
+    static "haste": EffectType
     /**
       */
-    "miningFatigue": EffectType
+    static "miningFatigue": EffectType
     /**
       */
-    "strength": EffectType
+    static "strength": EffectType
     /**
       */
-    "instantHealth": EffectType
+    static "instantHealth": EffectType
     /**
       */
-    "instantDamage": EffectType
+    static "instantDamage": EffectType
     /**
       */
-    "jumpBoost": EffectType
+    static "jumpBoost": EffectType
     /**
       */
-    "nausea": EffectType
+    static "nausea": EffectType
     /**
       */
-    "regeneration": EffectType
+    static "regeneration": EffectType
     /**
       */
-    "resistance": EffectType
+    static "resistance": EffectType
     /**
       */
-    "fireResistance": EffectType
+    static "fireResistance": EffectType
     /**
       */
-    "waterBreathing": EffectType
+    static "waterBreathing": EffectType
     /**
       */
-    "invisibility": EffectType
+    static "invisibility": EffectType
     /**
       */
-    "blindness": EffectType
+    static "blindness": EffectType
     /**
       */
-    "nightVision": EffectType
+    static "nightVision": EffectType
     /**
       */
-    "hunger": EffectType
+    static "hunger": EffectType
     /**
       */
-    "weakness": EffectType
+    static "weakness": EffectType
     /**
       */
-    "poison": EffectType
+    static "poison": EffectType
     /**
       */
-    "wither": EffectType
+    static "wither": EffectType
     /**
       */
-    "healthBoost": EffectType
+    static "healthBoost": EffectType
     /**
       */
-    "absorption": EffectType
+    static "absorption": EffectType
     /**
       */
-    "saturation": EffectType
+    static "saturation": EffectType
     /**
       */
-    "levitation": EffectType
+    static "levitation": EffectType
     /**
       */
-    "fatalPoison": EffectType
+    static "fatalPoison": EffectType
     /**
       */
-    "conduitPower": EffectType
+    static "conduitPower": EffectType
     /**
       */
-    "slowFalling": EffectType
+    static "slowFalling": EffectType
     /**
       */
-    "badOmen": EffectType
+    static "badOmen": EffectType
     /**
       */
-    "villageHero": EffectType
+    static "villageHero": EffectType
     
   }
   

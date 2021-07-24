@@ -1,9 +1,11 @@
-import { Effect, Entity, Player, World } from 'Minecraft';
+import { Effect, Effects, Entity, Player, World } from 'Minecraft';
 import { ChatCommands } from './chatcommands.js';
 import EventEmitter, { EventListener } from './eventemitter.js';
 import Scoreboard from './scoreboard.js';
 import { getPlayerNames } from './utils/player.js';
-import { runCommand } from './utils/runcommand.js';
+import { print } from './utils/print.js';
+import { runCommand, runCommands } from './utils/runcommand.js';
+import { setTickTimeout } from './utils/ticktimeouts.js';
 
 type EventNames = 'beforeChat' | 'chat' | 'effectAdded' | 'playerCreated' | 'playerRemoved' | 'tick' | 'worldStarted';
 
@@ -27,6 +29,16 @@ export interface EffectAddedEVD {
   effect: Effect;
   effectState: number;
 }
+export interface EntityCreatedEVD {
+  entity: Entity;
+}
+export interface JSONRequestEVD {
+  entity: Entity;
+  senderId: string;
+  request: {
+    [key: string]: any;
+  };
+}
 export interface PlayerCreatedEVD {
   player: Player;
   playerId: string;
@@ -47,6 +59,8 @@ interface Events {
   emit(eventName: 'beforeChat', evd: BeforeChatEVD): any;
   emit(eventName: 'chat', evd: ChatEVD): any;
   emit(eventName: 'effectAdded', evd: EffectAddedEVD): any;
+  emit(eventName: 'entityCreated', evd: EntityCreatedEVD): any;
+  emit(eventName: 'JSONRequest', evd: JSONRequestEVD): any;
   emit(eventName: 'playerCreated', evd: PlayerCreatedEVD): any;
   emit(eventName: 'playerRemoved', evd: PlayerRemovedEVD): any;
   emit(eventName: 'tick', evd: TickEVD): any;
@@ -55,6 +69,8 @@ interface Events {
   on(eventName: 'beforeChat', eventCallback: (evd: BeforeChatEVD) => any): any;
   on(eventName: 'chat', eventCallback: (evd: ChatEVD) => any): any;
   on(eventName: 'effectAdded', eventCallback: (evd: EffectAddedEVD) => any): any;
+  on(eventName: 'entityCreated', eventCallback: (evd: EntityCreatedEVD) => any): any;
+  on(eventName: 'JSONRequest', eventCallback: (evd: JSONRequestEVD) => any): any;
   on(eventName: 'playerCreated', eventCallback: (evd: PlayerCreatedEVD) => any): any;
   on(eventName: 'playerRemoved', eventCallback: (evd: PlayerRemovedEVD) => any): any;
   on(eventName: 'tick', eventCallback: (evd: TickEVD) => any): any;
@@ -63,6 +79,8 @@ interface Events {
   once(eventName: 'beforeChat', eventCallback: (evd: BeforeChatEVD) => any): any;
   once(eventName: 'chat', eventCallback: (evd: ChatEVD) => any): any;
   once(eventName: 'effectAdded', eventCallback: (evd: EffectAddedEVD) => any): any;
+  once(eventName: 'entityCreated', eventCallback: (evd: EntityCreatedEVD) => any): any;
+  once(eventName: 'JSONRequest', eventCallback: (evd: JSONRequestEVD) => any): any;
   once(eventName: 'playerCreated', eventCallback: (evd: PlayerCreatedEVD) => any): any;
   once(eventName: 'playerRemoved', eventCallback: (evd: PlayerRemovedEVD) => any): any;
   once(eventName: 'tick', eventCallback: (evd: TickEVD) => any): any;
@@ -70,6 +88,13 @@ interface Events {
 }
 let Events: Events = new EventEmitter();
 export default Events;
+
+World.events.createEntity.subscribe((evd) => {
+  let emitEvd = {
+    entity: evd.entity
+  };
+  Events.emit('entityCreated', emitEvd);
+});
 
 const playerIdObjective = new Scoreboard('playerId');
 World.events.chat.subscribe((evd) => {
@@ -181,3 +206,33 @@ Events.on('worldStarted', () =>
     prevTestfor = playerNames;
   })
 );
+
+const JSONIdObjective = new Scoreboard('JSONId');
+Events.on('entityCreated', (evd) => {
+  setTickTimeout(() => {
+    if (runCommand('testfor @e[type=plugin:jsonrequest,tag=!JSONRequestParsed]').error) return;
+
+    Events.once('effectAdded', (evd) => {
+      if (evd.effect.displayName == 'Bad Omen') {
+        let id = JSONIdObjective.getScoreSelector('@e[type=plugin:jsonrequest,c=1]') + '';
+        let request = {};
+        try {
+          request = JSON.parse(evd.entity.nameTag);
+        } catch {}
+
+        let emitEvd = {
+          entity: evd.entity,
+          senderId: id,
+          request: request
+        };
+        Events.emit('JSONRequest', emitEvd);
+      }
+    });
+    
+    runCommands([
+      'effect @e[type=plugin:jsonrequest,tag=!JSONRequestParsed] bad_omen 1 0 true',
+      'tag @e[type=plugin:jsonrequest] add JSONRequestParsed',
+      'event entity @e[type=plugin:jsonrequest] plugin:remove'
+    ]);
+  }, 1);
+});

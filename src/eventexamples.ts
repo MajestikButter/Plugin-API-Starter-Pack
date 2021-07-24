@@ -8,3 +8,9 @@ Events.on('playerCreated', (evd) => {
 Events.on('worldStarted', (evd) => {
   print(`The world has started after ${evd.tickStamp} ticks`);
 });
+
+Events.on('JSONRequest', (evd) => {
+  if (evd.request.print) {
+    print('hey! this request was sent with the id: ' + evd.senderId);
+  }
+});

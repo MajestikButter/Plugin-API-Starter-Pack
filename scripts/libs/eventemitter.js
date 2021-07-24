@@ -1,4 +1,4 @@
-import { error } from "./utils/print.js";
+import { error } from './utils/print.js';
 export default class EventEmitter {
     constructor() {
         this.events = {};
@@ -50,9 +50,12 @@ export default class EventEmitter {
             if (!event) {
                 return;
             }
-            for (let i = event.listeners.length - 1; i >= 0; i--) {
+            for (let i = 0; i < event.listeners.length; i++) {
                 let listener = event.listeners[i];
                 listener.callback(...args);
+            }
+            for (let i = event.listeners.length - 1; i >= 0; i--) {
+                let listener = event.listeners[i];
                 if (listener.type == 'once') {
                     this.removeListener(listener);
                 }

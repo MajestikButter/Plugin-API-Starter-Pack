@@ -3,9 +3,16 @@ import { ChatCommands } from './chatcommands.js';
 import EventEmitter from './eventemitter.js';
 import Scoreboard from './scoreboard.js';
 import { getPlayerNames } from './utils/player.js';
-import { runCommand } from './utils/runcommand.js';
+import { runCommand, runCommands } from './utils/runcommand.js';
+import { setTickTimeout } from './utils/ticktimeouts.js';
 let Events = new EventEmitter();
 export default Events;
+World.events.createEntity.subscribe((evd) => {
+    let emitEvd = {
+        entity: evd.entity
+    };
+    Events.emit('entityCreated', emitEvd);
+});
 const playerIdObjective = new Scoreboard('playerId');
 World.events.chat.subscribe((evd) => {
     let senderId = playerIdObjective.getScoreSelector(`"${evd.sender.name}"`);
@@ -107,3 +114,31 @@ Events.on('worldStarted', () => Events.on('tick', () => {
     }
     prevTestfor = playerNames;
 }));
+const JSONIdObjective = new Scoreboard('JSONId');
+Events.on('entityCreated', (evd) => {
+    setTickTimeout(() => {
+        if (runCommand('testfor @e[type=plugin:jsonrequest,tag=!JSONRequestParsed]').error)
+            return;
+        Events.once('effectAdded', (evd) => {
+            if (evd.effect.displayName == 'Bad Omen') {
+                let id = JSONIdObjective.getScoreSelector('@e[type=plugin:jsonrequest,c=1]') + '';
+                let request = {};
+                try {
+                    request = JSON.parse(evd.entity.nameTag);
+                }
+                catch { }
+                let emitEvd = {
+                    entity: evd.entity,
+                    senderId: id,
+                    request: request
+                };
+                Events.emit('JSONRequest', emitEvd);
+            }
+        });
+        runCommands([
+            'effect @e[type=plugin:jsonrequest,tag=!JSONRequestParsed] bad_omen 1 0 true',
+            'tag @e[type=plugin:jsonrequest] add JSONRequestParsed',
+            'event entity @e[type=plugin:jsonrequest] plugin:remove'
+        ]);
+    }, 1);
+});
