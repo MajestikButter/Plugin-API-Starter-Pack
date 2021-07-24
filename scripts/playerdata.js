@@ -24,7 +24,7 @@ Events.on('playerRemoved', (evd) => {
     print(`${evd.playerName} has been unloaded, PlayerData has been saved`);
     PlayerData.save();
 });
-ChatCommands.register('setdata', 'Sets the value for a key on the specified player data', 'setdata <key: prefix | suffix | chatPrefix | chatSuffix> <value: string>', [], (msg, args, argStr) => {
+ChatCommands.register('setdata', 'Sets the value for a key on the specified player data', 'setdata <key: prefix | suffix | chatPrefix | chatSuffix | chatSeparator> <value: string>', [], (msg, args, argStr) => {
     if (!PlayerData.data[args[0]]) {
         sendMsg(selectorFromPlayerId(msg.senderId), `§cNo player data found with id '${args[0]}'`);
         return;
@@ -44,6 +44,9 @@ ChatCommands.register('setdata', 'Sets the value for a key on the specified play
             break;
         case 'chatSuffix':
             data.chatSuffix = arg2;
+            break;
+        case 'chatSeparator':
+            data.chatSeparator = arg2;
             break;
         default:
             sendMsg(selectorFromPlayerId(msg.senderId), `§cNo valid key called '${args[1]}' was found in player '${args[0]}'`);

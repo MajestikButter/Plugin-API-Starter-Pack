@@ -46,7 +46,7 @@ Events.on('playerRemoved', (evd) => {
 ChatCommands.register(
   'setdata',
   'Sets the value for a key on the specified player data',
-  'setdata <key: prefix | suffix | chatPrefix | chatSuffix> <value: string>',
+  'setdata <key: prefix | suffix | chatPrefix | chatSuffix | chatSeparator> <value: string>',
   [],
   (msg, args, argStr) => {
     if (!PlayerData.data[args[0]]) {
@@ -70,6 +70,9 @@ ChatCommands.register(
         break;
       case 'chatSuffix':
         data.chatSuffix = arg2;
+        break;
+      case 'chatSeparator':
+        data.chatSeparator = arg2;
         break;
       default:
         sendMsg(selectorFromPlayerId(msg.senderId), `§cNo valid key called '${args[1]}' was found in player '${args[0]}'`);
