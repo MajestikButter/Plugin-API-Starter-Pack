@@ -10,6 +10,6 @@ export function getPlayerNames() {
     else {
         currParsed = testfor.result.statusMessage.slice(6).split(/, /g);
     }
-    return currParsed;
+    return currParsed.sort();
 }
 export const selectorFromPlayerId = (playerId) => `@a[scores={playerId=${playerId}}]`;
