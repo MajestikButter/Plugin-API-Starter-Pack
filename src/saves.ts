@@ -1,5 +1,6 @@
 import DataSave from './libs/datasave.js';
 import Events from './libs/events.js';
+import { print } from './libs/utils/print.js';
 
 interface PlayerData {
   save(): void;
@@ -13,11 +14,10 @@ interface PlayerData {
     };
   };
 }
-let PlayerDataPromise = DataSave.create('playerData');
-export let PlayerData: PlayerData;
+
+export let PlayerData: PlayerData = DataSave.get('playerData');
 
 Events.on('playerCreated', async (evd) => {
-  PlayerData = await PlayerDataPromise;
   if (PlayerData.data[evd.playerId]) {
     PlayerData.data[evd.playerId].name = evd.player.name;
     return;

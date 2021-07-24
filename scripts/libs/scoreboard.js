@@ -20,7 +20,7 @@ export default class Scoreboard {
     setScoreSelector(selector, score) {
         if (typeof score != 'number' && score != 'none')
             return false;
-        if (score == 'none')
+        if (score === 'none')
             return !runCommand(`scoreboard players reset ${selector} ${this.name}`).error;
         return !runCommand(`scoreboard players set ${selector} ${this.name} ${score}`).error;
     }

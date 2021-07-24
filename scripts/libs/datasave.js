@@ -1,52 +1,53 @@
-import Events from './events.js';
 import { runCommand } from './utils/runcommand.js';
 import { setTickInterval } from './utils/ticktimeouts.js';
-import { Tags } from './tags.js';
+import Scoreboard from './scoreboard.js';
 let dataSaves = {};
-const dataSaveSelector = (id) => `@e[c=1,type=plugin:datasave,name="${id}"]`;
-class DataSave {
-    constructor(id, autoSave = true) {
+let dataSaveObjective = new Scoreboard('dataSaves');
+function getDataSavePlayers() {
+    let cmd = runCommand(`scoreboard players list`);
+    if (cmd.error)
+        return [];
+    let trackedPlayers = cmd.result.statusMessage.split('\n')[1].split(', ');
+    let getDataSaves = [];
+    for (let trackedPlayer of trackedPlayers) {
+        if (!trackedPlayer.startsWith('$DataSave:'))
+            continue;
+        getDataSaves.push({ raw: trackedPlayer, parsed: JSON.parse(trackedPlayer.slice(10).replace(/\\\"/g, '"')) });
+    }
+    return getDataSaves;
+}
+export default class DataSave {
+    constructor(id, data, autoSave = true) {
         this.autoSave = true;
         this.id = id;
+        this.data = data;
         this.autoSave = autoSave;
-        if (runCommand(`testfor ${dataSaveSelector(this.id)}`).error) {
-            runCommand(`summon plugin:datasave ${this.id} 0 1 0`);
-            this.data = {};
-        }
-        else {
-            const tags = new Tags(dataSaveSelector(this.id));
-            this.data = JSON.parse(tags.getAll()[0]);
-        }
     }
     save() {
-        const tags = new Tags(dataSaveSelector(this.id));
-        tags.removeAll();
-        tags.add(JSON.stringify(this.data));
+        let scoreDataSaves = getDataSavePlayers();
+        for (let dataSave of scoreDataSaves) {
+            if (dataSave.parsed.id == this.id) {
+                dataSaveObjective.setScoreSelector(`"${dataSave.raw}"`, 'none');
+            }
+        }
+        let thisStr = JSON.stringify(JSON.stringify(this));
+        dataSaveObjective.setScoreSelector(`"$DataSave:${thisStr.slice(1, thisStr.length - 1)}"`, 0);
     }
-    static create(id, autoSave = true) {
-        return new Promise((resolve, reject) => {
-            Events.on('worldStarted', () => {
-                if (dataSaves[id]) {
-                    resolve(dataSaves[id]);
-                }
-                else {
-                    let dataSave = new DataSave(id, autoSave);
-                    dataSaves[id] = dataSave;
-                    if (runCommand(`testfor ${dataSaveSelector(id)}`).error) {
-                        runCommand(`execute @r ~~~ summon plugin:datasave "${id}" 0 1 0`);
-                        dataSave.data = {};
-                    }
-                    else {
-                        const tags = new Tags(dataSaveSelector(id));
-                        dataSave.data = JSON.parse(tags.getAll()[0]);
-                    }
-                    resolve(dataSave);
-                }
-            });
-        });
+    static get(id, defaultData = {}) {
+        if (dataSaves[id]) {
+            return dataSaves[id];
+        }
+        else {
+            let dataSave = new DataSave(id, defaultData);
+            dataSaves[id] = dataSave;
+            return dataSave;
+        }
     }
 }
-export default DataSave;
+let loadDataSaves = getDataSavePlayers();
+for (let trackedPlayer of loadDataSaves) {
+    dataSaves[trackedPlayer.parsed.id] = DataSave.get(trackedPlayer.parsed.id, trackedPlayer.parsed.data);
+}
 setTickInterval(() => {
     for (let k in dataSaves) {
         let dataSave = dataSaves[k];
