@@ -22,6 +22,7 @@ class ChatCommand {
 
 export class ChatCommands {
   static eventEmitter = new EventEmitter();
+  static prefix = '!';
 
   static commands: ChatCommand[] = [];
 
@@ -31,8 +32,12 @@ export class ChatCommands {
     this.commands.push(newCommand);
   }
 
+  static isCmd(msg: string) {
+    return msg.startsWith(this.prefix);
+  }
+
   static run(evd: BeforeChatEVD) {
-    const msg = evd.message.slice(1);
+    const msg = evd.message.slice(this.prefix.length);
     const cmd = msg.split(' ')[0];
     const argsMsg = msg.slice(cmd.length).trim();
     const args = argsMsg.split(' ');
