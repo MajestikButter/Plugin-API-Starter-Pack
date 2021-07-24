@@ -1,8 +1,5 @@
-import Events from './events.js';
 import { runCommand } from './utils/runcommand.js';
 import { setTickInterval } from './utils/ticktimeouts.js';
-import { Tags } from './tags.js';
-import { print } from './utils/print.js';
 import Scoreboard from './scoreboard.js';
 
 let dataSaves: { [id: string]: DataSave } = {};
