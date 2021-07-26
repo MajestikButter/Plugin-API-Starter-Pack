@@ -9,6 +9,12 @@
   },
   "modules": [
     {
+      "description": "Data Module",
+      "type": "data",
+      "uuid": "f54d7e3d-b5ce-4e1a-a146-78afbec4ee36",
+      "version": [ 1, 0, 0 ]
+    },
+    {
       "description": "Plugin Module",
       "type": "javascript",
       "uuid": "93170bfa-460f-4e5b-9fac-645ff85478e3",
