@@ -1,10 +1,10 @@
-import { ChatCommands } from './libs/chatcommands.js';
-import DataSave from './libs/datasave.js';
-import Events from './libs/events.js';
-import { selectorFromPlayerId } from './libs/utils/player.js';
-import { print } from './libs/utils/print.js';
-import { sendMsg } from './libs/utils/sendmessage.js';
-import { getCharLengthWords } from './libs/utils/string.js';
+import { ChatCommands } from './mblib/chatcommands.js';
+import DataSave from './mblib/datasave.js';
+import Events from './mblib/events.js';
+import { selectorFromPlayerId } from './mblib/utils/player.js';
+import { print } from './mblib/utils/print.js';
+import { sendMsg } from './mblib/utils/sendmessage.js';
+import { getCharLengthWords } from './mblib/utils/string.js';
 export let PlayerData = DataSave.get('playerData');
 export const defaultPlayerDataEntry = {
     name: '',

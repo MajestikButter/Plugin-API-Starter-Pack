@@ -1,5 +1,5 @@
-import Events from './libs/events.js';
-import { print } from './libs/utils/print.js';
+import Events from './mblib/events.js';
+import { print } from './mblib/utils/print.js';
 Events.on('playerCreated', (evd) => {
     print(`${evd.player.name} has loaded in`);
 });

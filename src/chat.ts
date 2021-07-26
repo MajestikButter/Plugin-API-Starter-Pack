@@ -1,8 +1,8 @@
-import { ChatCommands } from './libs/chatcommands.js';
-import Events from './libs/events.js';
-import Scoreboard from './libs/scoreboard.js';
-import { getPlayerNames, selectorFromPlayerId } from './libs/utils/player.js';
-import { sendMsg } from './libs/utils/sendmessage.js';
+import { ChatCommands } from './mblib/chatcommands.js';
+import Events from './mblib/events.js';
+import Scoreboard from './mblib/scoreboard.js';
+import { getPlayerNames, selectorFromPlayerId } from './mblib/utils/player.js';
+import { sendMsg } from './mblib/utils/sendmessage.js';
 import { PlayerData } from './playerdata.js';
 
 Events.on('beforeChat', (evd) => {

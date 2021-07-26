@@ -16,8 +16,11 @@ export class ChatCommands {
         let newCommand = new ChatCommand(name, description, usage, permission, callback);
         this.commands.push(newCommand);
     }
+    static isCmd(msg) {
+        return msg.startsWith(this.prefix);
+    }
     static run(evd) {
-        const msg = evd.message.slice(1);
+        const msg = evd.message.slice(this.prefix.length);
         const cmd = msg.split(' ')[0];
         const argsMsg = msg.slice(cmd.length).trim();
         const args = argsMsg.split(' ');
@@ -29,6 +32,7 @@ export class ChatCommands {
     }
 }
 ChatCommands.eventEmitter = new EventEmitter();
+ChatCommands.prefix = '!';
 ChatCommands.commands = [];
 ChatCommands.register('help', 'Provides help/list of commands.', 'help [page: int]', ['basic', 'help'], (msg, args) => {
     let body = '';
