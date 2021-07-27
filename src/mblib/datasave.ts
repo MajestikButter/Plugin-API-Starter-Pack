@@ -2,7 +2,7 @@ import { runCommand } from './utils/runcommand.js';
 import { setTickInterval } from './utils/ticktimeouts.js';
 import Scoreboard from './scoreboard.js';
 
-let dataSaves: { [id: string]: DataSave } = {};
+export let dataSaves: { [id: string]: DataSave } = {};
 
 let dataSaveObjective = new Scoreboard('dataSaves');
 interface DataSaveJSON {

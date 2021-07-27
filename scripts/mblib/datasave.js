@@ -1,7 +1,7 @@
 import { runCommand } from './utils/runcommand.js';
 import { setTickInterval } from './utils/ticktimeouts.js';
 import Scoreboard from './scoreboard.js';
-let dataSaves = {};
+export let dataSaves = {};
 let dataSaveObjective = new Scoreboard('dataSaves');
 function getDataSavePlayers() {
     let cmd = runCommand(`scoreboard players list`);

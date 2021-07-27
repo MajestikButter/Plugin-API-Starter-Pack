@@ -10,6 +10,24 @@
     "component_groups": {
       "remove": {
         "minecraft:instant_despawn": {}
+      },
+      "timeout": {
+        "minecraft:timer": {
+          "time": [5, 5],
+          "looping": true,
+          "time_down_event": {
+            "event": "plugin:remove"
+          }
+        }
+      },
+      "activate": {
+        "minecraft:timer": {
+          "time": [0.05, 0.05],
+          "looping": true,
+          "time_down_event": {
+            "event": "activate"
+          }
+        }
       }
     },
     "components": {
@@ -32,11 +50,31 @@
       }
     },
     "events": {
-      "plugin:remove": {
+      "minecraft:entity_spawned": {
         "add": {
           "component_groups": [
-            "remove"
+            "activate"
           ]
+        }
+      },
+      "activate": {
+        "run_command": {
+          "command": "effect @s bad_omen 1 0 true"
+        },
+        "remove": {
+          "component_groups": [
+            "activate"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "timeout"
+          ]
+        }
+      },
+      "plugin:remove": {
+        "add": {
+          "component_groups": ["remove"]
         }
       }
     }

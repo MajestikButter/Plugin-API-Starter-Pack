@@ -1,5 +1,5 @@
-import Events from "../events.js";
-import Scoreboard from "../scoreboard.js";
+import Events from '../events.js';
+import Scoreboard from '../scoreboard.js';
 
 let tickTimeoutId = 0;
 let tickTimeouts: { [id: number]: { func: () => void; ticks: number } } = [];
@@ -34,7 +34,9 @@ Events.on('worldStarted', () =>
       if (!v) break;
       v.ticks--;
       if (v.ticks <= 0) {
-        v.func();
+        try {
+          v.func();
+        } catch {}
         delete tickTimeouts[k];
       }
     }
@@ -45,7 +47,9 @@ Events.on('worldStarted', () =>
       v.ticking--;
       if (v.ticking <= 0) {
         v.ticking = v.ticks;
-        v.func();
+        try {
+          v.func();
+        } catch {}
       }
     }
   })

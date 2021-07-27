@@ -208,31 +208,24 @@ Events.on('worldStarted', () =>
 );
 
 const JSONIdObjective = new Scoreboard('JSONId');
-Events.on('entityCreated', (evd) => {
-  setTickTimeout(() => {
-    if (runCommand('testfor @e[type=plugin:jsonrequest,tag=!JSONRequestParsed]').error) return;
 
-    Events.once('effectAdded', (evd) => {
-      if (evd.effect.displayName == 'Bad Omen') {
-        let id = JSONIdObjective.getScoreSelector('@e[type=plugin:jsonrequest,c=1]') + '';
-        let request = {};
-        try {
-          request = JSON.parse(evd.entity.nameTag);
-        } catch {}
+Events.on('effectAdded', (evd) => {
+  if (runCommand('testfor @e[type=plugin:jsonrequest,tag=!JSONRequestParsed,c=1]').error) return;
 
-        let emitEvd = {
-          entity: evd.entity,
-          senderId: id,
-          request: request
-        };
-        Events.emit('JSONRequest', emitEvd);
-      }
-    });
-    
-    runCommands([
-      'effect @e[type=plugin:jsonrequest,tag=!JSONRequestParsed] bad_omen 1 0 true',
-      'tag @e[type=plugin:jsonrequest] add JSONRequestParsed',
-      'event entity @e[type=plugin:jsonrequest] plugin:remove'
-    ]);
-  }, 1);
+  if (evd.effect.displayName == 'Bad Omen' && evd.entity.id == 'unknown') {
+    let id = JSONIdObjective.getScoreSelector('@e[type=plugin:jsonrequest,c=1]') + '';
+    let request = {};
+    try {
+      request = JSON.parse(evd.entity.nameTag);
+    } catch {}
+
+    let emitEvd = {
+      entity: evd.entity,
+      senderId: id,
+      request: request
+    };
+    Events.emit('JSONRequest', emitEvd);
+
+    runCommands(['tag @e[type=plugin:jsonrequest,c=1] add JSONRequestParsed', 'event entity @e[type=plugin:jsonrequest,c=1] plugin:remove']);
+  }
 });
