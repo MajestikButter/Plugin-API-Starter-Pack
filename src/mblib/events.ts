@@ -119,7 +119,7 @@ World.events.beforeChat.subscribe((evd) => {
     sendToTargets: evd.sendToTargets,
     targets: evd.targets
   };
-  if (ChatCommands.isCmd(emitEvd.message)) {
+  if (ChatCommands.enabled && ChatCommands.isCmd(emitEvd.message)) {
     ChatCommands.run(emitEvd);
     emitEvd.cancel = true;
   } else {

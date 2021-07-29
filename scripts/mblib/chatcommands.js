@@ -33,6 +33,7 @@ export class ChatCommands {
 }
 ChatCommands.eventEmitter = new EventEmitter();
 ChatCommands.prefix = '!';
+ChatCommands.enabled = true;
 ChatCommands.commands = [];
 ChatCommands.register('help', 'Provides help/list of commands.', 'help [page: int]', ['basic', 'help'], (msg, args) => {
     let body = '';
@@ -50,5 +51,5 @@ ChatCommands.register('help', 'Provides help/list of commands.', 'help [page: in
         body += `!${cmd.usage}\n - ${cmd.description}\n`;
     }
     const header = `§2--- Showing help page ${page} of ${Math.ceil(validCmds / 7)} (!help [page]) ---§r\n`;
-    sendMsg(msg.sender.name, header + body + header);
+    sendMsg(`"${msg.sender.name}"`, header + body + header);
 });

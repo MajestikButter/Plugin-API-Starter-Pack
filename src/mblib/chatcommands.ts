@@ -23,6 +23,7 @@ class ChatCommand {
 export class ChatCommands {
   static eventEmitter = new EventEmitter();
   static prefix = '!';
+  static enabled = true;
 
   static commands: ChatCommand[] = [];
 
@@ -68,5 +69,5 @@ ChatCommands.register('help', 'Provides help/list of commands.', 'help [page: in
   }
 
   const header = `§2--- Showing help page ${page} of ${Math.ceil(validCmds / 7)} (!help [page]) ---§r\n`;
-  sendMsg(msg.sender.name, header + body + header);
+  sendMsg(`"${msg.sender.name}"`, header + body + header);
 });
