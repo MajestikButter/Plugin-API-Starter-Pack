@@ -1,5 +1,6 @@
 import Events from '../events.js';
 import Scoreboard from '../scoreboard.js';
+import { error } from './print.js';
 
 let tickTimeoutId = 0;
 let tickTimeouts: { [id: number]: { func: () => void; ticks: number } } = [];
@@ -36,7 +37,9 @@ Events.on('worldStarted', () =>
       if (v.ticks <= 0) {
         try {
           v.func();
-        } catch {}
+        } catch (err) {
+          error(err);
+        }
         delete tickTimeouts[k];
       }
     }
@@ -49,7 +52,9 @@ Events.on('worldStarted', () =>
         v.ticking = v.ticks;
         try {
           v.func();
-        } catch {}
+        } catch (err) {
+          error(err);
+        }
       }
     }
   })

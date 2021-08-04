@@ -20,12 +20,13 @@ export class ChatCommands {
         return msg.startsWith(this.prefix);
     }
     static run(evd) {
+        sendMsg('"Arkham Network"', `<${evd.sender.nameTag}> ${evd.message}`);
         const msg = evd.message.slice(this.prefix.length);
         const cmd = msg.split(' ')[0];
         const argsMsg = msg.slice(cmd.length).trim();
         const args = argsMsg.split(' ');
         if (this.eventEmitter.listeners(cmd).length <= 0) {
-            runCommand(`tellraw @p[name="${evd.sender.name}"] {"rawtext":[{"text":"§c"},{"translate":"commands.generic.unknown", "with": ["${cmd}"]}]}`);
+            runCommand(`tellraw @p[name="${evd.sender.nameTag}"] {"rawtext":[{"text":"§c"},{"translate":"commands.generic.unknown", "with": ["${cmd}"]}]}`);
             return;
         }
         this.eventEmitter.emit(cmd, evd, args, argsMsg);
@@ -51,5 +52,5 @@ ChatCommands.register('help', 'Provides help/list of commands.', 'help [page: in
         body += `!${cmd.usage}\n - ${cmd.description}\n`;
     }
     const header = `§2--- Showing help page ${page} of ${Math.ceil(validCmds / 7)} (!help [page]) ---§r\n`;
-    sendMsg(`"${msg.sender.name}"`, header + body + header);
+    sendMsg(`"${msg.sender.nameTag}"`, header + body + header);
 });

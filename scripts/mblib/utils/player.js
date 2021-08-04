@@ -12,4 +12,4 @@ export function getPlayerNames() {
     }
     return currParsed.sort();
 }
-export const selectorFromPlayerId = (playerId) => `@a[scores={playerId=${playerId}}]`;
+export const selectorFromPlayerId = (playerId, additionalArgs = []) => `@a[scores={playerId=${playerId}}${additionalArgs.length > 0 ? ',' + additionalArgs.toString() : ''}]`;

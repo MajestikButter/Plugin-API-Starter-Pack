@@ -17,11 +17,11 @@ function getDataSavePlayers() {
     return getDataSaves;
 }
 export default class DataSave {
-    constructor(id, data, autoSave = true) {
+    constructor(id, data) {
         this.autoSave = true;
         this.id = id;
         this.data = data;
-        this.autoSave = autoSave;
+        this.defaultData = data;
     }
     save() {
         let scoreDataSaves = getDataSavePlayers();
@@ -35,6 +35,7 @@ export default class DataSave {
     }
     static get(id, defaultData = {}) {
         if (dataSaves[id]) {
+            dataSaves[id].defaultData = defaultData;
             return dataSaves[id];
         }
         else {

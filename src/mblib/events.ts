@@ -3,7 +3,6 @@ import { ChatCommands } from './chatcommands.js';
 import EventEmitter, { EventListener } from './eventemitter.js';
 import Scoreboard from './scoreboard.js';
 import { getPlayerNames } from './utils/player.js';
-import { print } from './utils/print.js';
 import { runCommand, runCommands } from './utils/runcommand.js';
 import { setTickTimeout } from './utils/ticktimeouts.js';
 
@@ -98,7 +97,7 @@ World.events.createEntity.subscribe((evd) => {
 
 const playerIdObjective = new Scoreboard('playerId');
 World.events.chat.subscribe((evd) => {
-  let senderId = playerIdObjective.getScoreSelector(`"${evd.sender.name}"`);
+  let senderId = playerIdObjective.getScoreSelector(`"${evd.sender.nameTag}"`);
   let emitEvd = {
     sender: evd.sender,
     senderId: senderId + '',
@@ -110,7 +109,7 @@ World.events.chat.subscribe((evd) => {
 });
 
 World.events.beforeChat.subscribe((evd) => {
-  let senderId = playerIdObjective.getScoreSelector(`"${evd.sender.name}"`);
+  let senderId = playerIdObjective.getScoreSelector(`"${evd.sender.nameTag}"`);
   let emitEvd = {
     sender: evd.sender,
     senderId: senderId + '',
@@ -187,10 +186,10 @@ Events.on('worldStarted', () =>
 
       let players = World.getPlayers();
       for (let player of players) {
-        if (!player.name) continue;
+        if (!player.nameTag) continue;
 
-        if (player.name == name) {
-          let evd = { player: player, playerId: playerIdObjective.getScoreSelector(`"${player.name}"`) + '' };
+        if (player.nameTag == name) {
+          let evd = { player: player, playerId: playerIdObjective.getScoreSelector(`"${player.nameTag}"`) + '' };
           Events.emit('playerCreated', evd);
           break;
         }

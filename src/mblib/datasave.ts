@@ -25,6 +25,7 @@ function getDataSavePlayers() {
 export default class DataSave {
   id: string;
   data: any;
+  defaultData: any;
   autoSave: boolean = true;
 
   save() {
@@ -42,6 +43,7 @@ export default class DataSave {
 
   static get(id: string, defaultData = {}) {
     if (dataSaves[id]) {
+      dataSaves[id].defaultData = defaultData;
       return dataSaves[id];
     } else {
       let dataSave = new DataSave(id, defaultData);
@@ -50,10 +52,10 @@ export default class DataSave {
     }
   }
 
-  private constructor(id: string, data: any, autoSave = true) {
+  private constructor(id: string, data: any) {
     this.id = id;
     this.data = data;
-    this.autoSave = autoSave;
+    this.defaultData = data;
   }
 }
 
