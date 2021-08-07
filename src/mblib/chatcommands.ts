@@ -39,8 +39,6 @@ export class ChatCommands {
   }
 
   static run(evd: BeforeChatEVD) {
-    sendMsg('"Arkham Network"', `<${evd.sender.nameTag}> ${evd.message}`);
-
     const msg = evd.message.slice(this.prefix.length);
     const cmd = msg.split(' ')[0];
     const argsMsg = msg.slice(cmd.length).trim();
