@@ -8,5 +8,7 @@ export function print(msg, header = '§r[Info]') {
     runCommand(`tellraw @a[tag=devMode] {"rawtext": [{"text":"§b[Dev Log] ${header} ${msg.slice(1, msg.length - 1)}"}]}`);
 }
 export function error(err) {
+    if (err.name)
+        return print(`${err.name}: ${err.message}`, '§c[Error]');
     print(err, '§c[Error]');
 }

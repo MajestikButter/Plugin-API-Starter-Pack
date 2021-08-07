@@ -5,7 +5,8 @@
       "identifier": "plugin:jsonrequest",
       "is_summonable": true,
       "is_experimental": true,
-      "is_spawnable": false
+      "is_spawnable": false,
+      "runtime_identifier": "armor_stand"
     },
     "component_groups": {
       "remove": {
@@ -47,6 +48,8 @@
       "minecraft:collision_box": {
         "width": 0,
         "height": 0
+      },
+      "minecraft:persistent": {
       }
     },
     "events": {

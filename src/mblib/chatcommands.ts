@@ -1,3 +1,4 @@
+import './events.js';
 import EventEmitter from './eventemitter.js';
 import { BeforeChatEVD } from './events.js';
 import { runCommand } from './utils/runcommand.js';

@@ -1,4 +1,4 @@
-import { Commands } from "Minecraft";
+import { Commands } from 'Minecraft';
 
 export function runCommand(command: string) {
   try {
@@ -10,8 +10,6 @@ export function runCommand(command: string) {
 
 export function runCommands(commands: string[]) {
   for (let command of commands) {
-    try {
-      runCommand(command);
-    } catch (err) {}
+    runCommand(command);
   }
 }

@@ -8,5 +8,6 @@ export function print(msg: any, header = '§r[Info]') {
 }
 
 export function error(err: any) {
+  if (err.name) return print(`${err.name}: ${err.message}`, '§c[Error]');
   print(err, '§c[Error]');
 }

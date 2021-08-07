@@ -117,13 +117,15 @@ const JSONIdObjective = new Scoreboard('JSONId');
 Events.on('effectAdded', (evd) => {
     if (runCommand('testfor @e[type=plugin:jsonrequest,tag=!JSONRequestParsed,c=1]').error)
         return;
-    if (evd.effect.displayName == 'Bad Omen' && evd.entity.id == 'unknown') {
+    if (evd.effect.displayName == 'Bad Omen' && evd.entity.id == 'minecraft:armor_stand') {
         let id = JSONIdObjective.getScoreSelector('@e[type=plugin:jsonrequest,c=1]') + '';
         let request = {};
         try {
             request = JSON.parse(evd.entity.nameTag);
         }
-        catch { }
+        catch {
+            return;
+        }
         let emitEvd = {
             entity: evd.entity,
             senderId: id,

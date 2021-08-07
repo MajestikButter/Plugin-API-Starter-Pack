@@ -1,3 +1,4 @@
+import './events.js';
 import EventEmitter from './eventemitter.js';
 import { runCommand } from './utils/runcommand.js';
 import { sendMsg } from './utils/sendmessage.js';
